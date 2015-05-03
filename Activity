@@ -1,0 +1,146 @@
+#Activity
+###多界面应用程序的开发
+Activity怎么可以被使用？
+
+如果清单文件中没有Acticity那么安装后没有界面（Activity就是界面）
+1、一个应用程序可以有多个Activity
+
+	点击跳转另一个页面
+	Intent intent=new Intent();
+	intent.setClass(this,SecondActivity.class);
+	startActivity(intent);
+
+Activity之间怎么跳转，Activity.finish()的作用？
+
+
+finish（）点击返回退出界面
+
+###Activity的数据传递
+	Intent intent=new Intent(MainActivity.this,ResultActivity)
+	intent.putExtra("info",info);//把数据传递给下一个页面
+	
+	intent.start();
+	下一个页面获取信息
+	Intent intent=getIntent();
+	Stirng info=intent.getStringExtra("info");
+	tv_result.setText(info);
+setExta可以传递所有的数据，如果要传递自定义的，需要继承p...接口
+
+##隐式意图与显式意图
+**代码书写步骤：**
+	书写Activity文件继承Activity，再配置文件中配置此Activity
+
+*	显示意图，必须要指定被开启的Activity的类名或者路径名  
+	Intent intent=new Intent();  
+	Intent intent=new Intent(this,ActivityOne.class);
+	startActivity(intent);
+*	隐式意图，只须要制定动作和数据即可。  
+	Intent intent=new Intent();  
+	intent.setAction("com.itheima.twointent.OPEN02");  
+	intent.addCategory("android.intent.category.DEFAULT");  
+	startActivity(intent);
+
+**两种意图的优缺点:**  
+
+*	激活自己应用程序内部的组件，推荐使用显式意图，效率高
+*	激活别的应用程序的界面，或者自己的应用程序需要暴露给别的应用程序使用，效率低
+
+##隐式意图
+####隐式意图的详细参数：
+
+<data android:scheme=""/>数据的格式  
+<data android:host=""/>主机名  
+<data android:mimeType="text/plain"/>操作村文本的数据
+
+在响应的Activity界面intent.setType("text/plain");
+
+setData与setType的数据不能单个一起set，需要setDataAndType("","")即可  
+配置文件中有什么数据Activity就需要对应set或add所有的数据。
+
+
+
+##激活其他应用程序
+点击超链接打开浏览器  
+
+
+点击推荐好友打开短信，并填写短信内容：  
+1、研究短信应用的包名：通过打开应用程序打印的日志  
+2、打开源码，清单文件，找到ui的Activity的配置
+3、intent对象，setAction("选取源码中其中一个")，add所有的Category
+4、setData(Uri.parse("smsto"))
+5、putExtra("sms_body","短信内容");//短信的内容name是sms_body
+6、startActivity(intent);
+
+##短信助手
+**返回界面的API**  
+
+	A界面:
+	Intent intent=new Intent(this,SmaListAvtivity.class);
+	startActivityForResult(intent,0);//开启B
+	//接收B来的数据
+	onActivityResult(){
+	if(data!=null){
+	String message=data.getStringExtra("message");
+	et_message.setText(message);
+	}
+	super.onActivityResult(requestCode,resultCode,data);
+	}
+	B界面：
+	String message=smsArray[position];
+	Intent data=new Intent();
+	data.sputExta("message",message);
+	setResult(0,data)
+	finish();//关闭当前页面
+
+在A界面的start..的请求码设置一下，
+然后在接收方法中就可以判断requestCode的数据区分来自哪个页面的数据，同时在B 页面有一个resultCode同样方便我们判断来自哪个页面或者其他的功能
+
+#Activity的生命周期
+什么是生命周期？  
+对象从创建到被垃圾回收的过程中一定执行的方法叫做生命周期
+###生命周期的创建和销毁以及其他一些生命周期中的方法
+*	onCreate()：在应用打开的时候执行
+*	onDestory()：在应用关闭的时候执行
+*	onstart():在应用打开界面的时候执行（出界面时）
+*	onstop()：在应用最小化界面，以及关闭应用之前执行（界面小事时）
+*	onResume():获取焦点：一般用于游戏的暂停，把一个透明的窗口把游戏窗口覆盖掉，这样游戏界面还在显示中但失去了焦点
+*	onPause():失去交点
+*	onrestart():在最小化后再打开界面的时候执行
+*	
+###横竖屏切换的问题
+把界面竖屏固定：android:screenOrientation="portrait"  
+把界面竖屏固定：android:screenOrientation="landspace"  
+横竖屏切换不会让应用重新销毁再创建：
+android:screenOrientation="keyboardHidden|screenSize|orientation"
+
+##任务栈
+>task stack
+
+* task: 一个应用程序一般包括多个Activity,每个Activity都是用来处理用户交互的一个任务.
+
+* stack: 栈,是一总特殊的数据结构(后进先出).队列要是一种特殊的数据结构(先进先出).
+
+任务栈就是用来记录用户的操作的,记录的是Activity打开的先后顺序,后打开的界面先关闭,
+如果整个任务栈里面打开的Activity都被关闭了,就是应用程序被退出了.
+
+一个应用程序一般只有一个任务栈,但是也可能对应有多个任务栈\
+
+##Activity的启动模式
+* standard : 标准的启动模式
+> 默认应用场景
+
+* singleTop : 单一顶部模式
+> 如果Activity已经被开启,并且处于任务栈的栈顶,就不会创建新的Activity,而是复用这个已经开启的Activity. 为了防止出现一些奇怪的用户体验.推荐使用单一顶部模式.整个任务栈可以有多个实例存在.
+
+>应用场景: 短信发送界面.
+
+* singletask: 单一任务栈
+>在整个任务栈里面只允许有一个当前Activity的实例存在.
+如果要开启的Activity在任务栈中已经存在,直接复用这个已经存在的Activity,并且把这个Activity上面的所有的其他Activity给清空.
+
+>应用场景: 如果一个Activity非常消耗内存和cpu资源,建议把这个Activity做成singletask的模式.浏览器的browserActivity
+
+* singleinstance :单一实例．
+> 整个手机操作系统只有一个实例存在,并且是运行在自己单独的任务栈里面.
+> 
+> 通话界面的Activity
