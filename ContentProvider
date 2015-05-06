@@ -1,0 +1,74 @@
+*	内容提供者的使用（常用），内容观察者（不常用）  
+安卓四大组件之四：content provider内容提供者
+##内容提供者
+**作用：**把自己应用程序的私有的数据暴漏给别的应用程序。  
+**工作方式：**  
+**步骤：**
+
+	1、创建类继承ContentProvider
+	2、配置文件<provider name="" authorties="包名"></provider>
+	3、另一个应用：
+		1、得到内容提供者的解析器：ContentResolver resolver=getContentResolver();
+		2、Uri uri=Uri.parse("content://com.itheima.db/暗号");
+		3、ContentValues values=new ContentValues();
+			values....
+		4、通过解析器操作：resolver.insert(uri,values);
+在程序中需要添加一个访问过滤的代码：
+
+	public static final SUCESS=1;
+	static UriMatcher mUriMatcher=new UriMatcher(UriMatcher.NO_MATCH);
+	static{
+		mUriMatcher.addURI("com.itheima.db","暗号",SUCCESS);
+	}
+在每个方法中添加：
+
+	int code=mUriMatcher.match(uri);
+	if(code==SUCCESS){操作数据库}
+操作数据库的代码：
+
+	
+###系统短信数据的添加与删除
+
+##界面提醒方式
+*	Toast
+*	对话框
+*	通知栏 notifycation
+
+###通知栏通知
+通知显示在systemui的进程中。
+
+	NotificationManager nm=()getSystemService(NOTIFYCATION_SERVICE)
+	..API16以上
+	..向下兼容的代码v2
+	nm.notify(0,notification);
+演示了点击通知打电话的代码
+
+API11以上：
+	
+	// 得到系统通知服务器
+		NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		// 创建一个通知的容器
+		Notification notification = new Notification.Builder(this)
+				.setContentTitle("我是标题哦")
+				.setContentText("我是文本")
+				.setSmallIcon(R.drawable.play)
+				.setLargeIcon(
+						BitmapFactory.decodeResource(getResources(),
+								R.drawable.play)).build();
+		// 发送通知
+		nm.notify(0, notification);
+全兼容的通知展示在通知栏：
+
+	NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		Notification notification = new Notification(R.drawable.play, "新短信",
+				System.currentTimeMillis());
+		//设置通知的点击事件
+		Intent intent = new Intent();
+		intent.setAction(Intent.ACTION_CALL);
+		intent.setData(Uri.parse("tel://110"));
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+				intent, 0);
+		//把通知的内容放进Notification对象中，如果把contentIntent设置为null，则点击通知没反应
+		notification.setLatestEventInfo(this, "我是标题", "this is a text",
+				contentIntent);
+		nm.notify(0, notification);  
