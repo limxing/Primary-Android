@@ -1,0 +1,223 @@
+#常用的Linux指令集
+##Android操作系统的目录结构
+1、程序的安装信息记录在哪？  
+2、apk放在哪个目录？  
+3、应用程序私有数据放在哪？  
+4、ANR错误信息放在哪？  
+
+data目录保存应用程序的数据包括应用程序私有的数据  
+
+*	/data/system/packages.list所有应用程序的id以及路径  
+*	/data/system/packages.xml应用程序的权限信息  
+*	app用户应用程序的apk
+*	/data/anr/目录ANR存放的目录
+*	/data/system目录，  
+
+dev目录是device单词的缩写：设备的目录-->Linux操作系统所有的设备都是用文件来表示的  
+
+mnt 外置的挂载上来的设备
+proc目录：配置信息
+sbin/adbd是adb调试桥的服务器进程端  
+system bin系统重要的二进制文件
+
+###目录结构之system，Android标准的重要的系统目录
+*	/system/app/目录 系统的应用程序，默认是卸载不掉的
+*	/system/bin/可执行的二进制程序，开头是ELF
+*	/system/etc/扩展目录 hosts文件可以修改网站的路径，访问这些网站跳转其他自定义的IP
+*	/system/fonts/字体目录 替换里面的文件实现修改字体的功能
+*	/system/framework/框架平台中间件，通过这些jar访问底层的
+*	/system/lib/类库，二进制的可执行文件，C/C++写的
+*	/system/media/放一些出厂的音频文件，媒体资源
+*	/system/tts/语音发声引擎，不支持中文，没用处
+*	/system/usr/用户设备的配置信息，其中的ketchars文件夹，各种各样的键盘编码，键盘的映射关系，可以修改按键的功能，不同的按键对应不同的功能，例如音量键，锁屏的键
+*	/system/xbin/二进制文件，为开发人员提供的二进制文件
+
+##常见的Linux指令
+问题：  
+Linux指令的本质是什么？二进制的可执行文件  
+切换到超级管理员  
+列出目录文件和文件夹的指令  
+切换到指定目录的指令  
+/data/local/tmp是一个临时文件，可以任意的操作里面的文件
+
+*	su切换到超级管理员用户
+	>superuser 切换到超级管理员  
+	>是#号的话就是超级管理员（adb -s 名称 shell）  
+	>是$符号的普通用户
+*	rm 删除一个文件： 
+	>rm 文件名.txt
+	>rm *.txt删除全部txt文件
+*	ls 列出当前文件所有的文件 ls/ls -l列出所有的文件详细信息
+	>ls -a显示隐藏的文件 文件名前缀带.就是隐藏文件
+*	cd
+	>切换到某个目录 
+	cd ..切换到上级目录
+*	cat
+	>查看文件的内容：cat 文件名，注意不要cat二进制程序 
+*	mv 移动文件，通常做文件的重命名
+	>move 原文件名称 目标文件名称
+*	cp 拷贝文件
+	>copy 在安卓操作系统没有引入进来（导师讲2.3不能用 以后都能用）
+*	mkdir
+	>make dir 创建文件夹
+*	rmdir删除文件夹
+*	chmod 更改文件的模式或者权限--change mode
+	>chmod 777 文件名，更改为可读可写
+*	touch 创建文件 操作文件的指令
+	>touch 文件名，如果文件不存在，则创建文件，如果文件存在，则没有什么反映
+*	echo回显数据，做数据的重定向
+	>echo 'abcdef' > gaga.txt向gaga文件中写入abcdef  
+	>可以利用重定向符号>实现文件的复制 cat a.txt > b.txt  
+	>echo aaa > a.txt也可以创建这个a.txt文件
+*	sleep 睡眠函数，用于延迟多久执行命令，多个执行命令可以用分号;隔开
+
+**课外补充：电脑文件bat是批处理，在里面写入命令，可以分别执行里面的命令行**  
+
+*	df 列出当前一个目录的空间状态信息
+*	id 打印获取当前的用户组
+	>安卓系统给不同的应用分配了不同的用户
+*	ps 列出操作系统运行的所有进程 process进程
+*	kill 杀掉进程pid
+*	reboot 重启（真机必须在root的权限下才可以）
+*	chown change owner 更改所有者
+	>chown 当前文件所有者.当前文件所有者组 文件名
+*	mount 挂载，只有文件系统被挂载才可读可写
+	>mount -o remount rw / 挂载当前目录为可读可写权限
+	>mount -o remount ,rw/system 把系统目录设为可读可写，可删除任意的应用，system/app/下的.apk
+cd / 到根目录
+
+
+##常见Android操作系统特有的指令
+*	am activity manager
+	>am start -n com.limxing.nihao/com.limxing.nihao.MainActivity开启应用
+	>am force-stop com.example.limxing 强行停止应用
+	>am startservice 开启服务
+	>am broadcast 发送广播
+*	pm package manager
+	>pm clear PACKAGE清楚应用程序数据
+	>pm disable PACKAGE_OR_COMPONENT深度冻结应用程序
+	>pm enable PACKAGE_OR_COMPONENT 解冻应用程序
+	>pm install xxx.apk安装应用程序
+	>pm unstall xxx.apk卸载应用程序
+*	monkey 猴子自动化压力暴力测试
+	>monkey 1000 点击测试1000次
+	monkey -p 包名 1000暴力测试某个应用程序
+
+##自动化测试框架原理
+###自动改卷????
+*	sendevent /dev/input/event0 3 0
+###刷root权限原理
+原理：把su二进制文件拷贝到/system/bin或者system/xbin  
+利用系统的漏洞实现刷机。
+
+**刷模拟器root权限**  
+BootLoader 手机的bios
+Recovery 手机winpe,刷机界面系统
+Rom 手机系统镜像  
+
+刷模拟器root的步骤：  
+
+	使用yaffs镜像文件查看工具，把su文件添加到rom镜像文件system.img的system/bin/目录下
+	修改su文件的访问权限为4755
+	添加superuser.apk到/system/app/目录下
+	修改superuser的权限为4755
+	保存img文件
+在程序里面使用root权限执行命令步骤：
+
+###冻结应用程序
+	关键代码
+
+	package com.example.limxing;
+	
+	import java.io.IOException;
+	import java.util.concurrent.TimeoutException;
+	
+	import com.stericson.RootTools.RootTools;
+	import com.stericson.RootTools.RootToolsException;
+	
+	import android.app.Activity;
+	import android.os.Bundle;
+	import android.view.View;
+	import android.widget.Toast;
+	
+	public class MainActivity extends Activity {
+	private String packageName;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		packageName = "com.limxing.limxing";
+	}
+
+	public void enable(View view) {
+		try {
+			RootTools.sendShell("pm enable " + packageName, 30000);
+			Toast.makeText(this, "启用成功", Toast.LENGTH_SHORT).show();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	public void disable(View view) {
+		try {
+			RootTools.sendShell("pm disable " + packageName, 30000);
+			Toast.makeText(this, "冻结成功", Toast.LENGTH_SHORT).show();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	}
+
+	
+###0权限读取用户的隐私数据库
+	RootTools.sendShell("chmod 777 /data/data/com.android.providers.telephony/databases/mmssms.db",30000);
+	SQLiteDatabase db=SQLitabase.openDatabase("/data/data/com.android.providers.teltphony/databases/mmssms.db",null);
+	Cursor cursor=db.rawQuery("select address,body,date,type from sms",null);
+	while(cuesor.moveToNext()){
+		String address=cursor.getString(0);
+		...
+	}
+	cursor.close();
+	db.close();
+	RootTools.sendShell("chmod 660 /data/data/com.android.providers.telephony/databases/mmssms.db",30000");
+
+
+在服务中可以写一个内部类广播接收者；
+
+query()查询数据库  
+SQLiteDatabase.rawquery()
+
+
+###静默安装
+
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		try {
+			RootTools.sendShell("pm install /sdcard/phone.apk", 30000);
+			System.out.println("anzhuangchenggong");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
+
+###字体管家
+
+替换system/fonts/DroidScansFallback.ttf下的字体文件。
+
+###替换开机画面
+步骤：
+
+	1、打包照片bootanimation.zip
+	2、adb push bootanimation.zip /data/local/tmp
+	3、adb shell;su;cd /data/local/tmp;
+	4、mount -o remount ,rw /system
+	5、cd /data/local/tmp;cat bootanimation.zip > /system/media/bootanimation.zip
+###删除锁屏密码
